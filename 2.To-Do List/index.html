@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Enhanced To-Do List</title>
+</head>
+<body>
+
+    <div id="todo-container">
+        <div id="todo-header">
+            <h2>To-Do List</h2>
+        </div>
+        <ul id="todo-list"></ul>
+        <input type="text" id="add-todo" placeholder="Add a new task...">
+    </div>
+
+    <script>
+        // Check for existing tasks in local storage
+        const existingTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        const todoList = document.getElementById('todo-list');
+        const addTodoInput = document.getElementById('add-todo');
+
+        function renderTasks() {
+            // Clear existing tasks
+            todoList.innerHTML = '';
+
+            // Render tasks from local storage
+            existingTasks.forEach((task, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = `todo-item ${task.completed ? 'completed' : ''}`;
+                listItem.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTask(${index})">
+                    <span>${task.text}</span>
+                    <button onclick="deleteTask(${index})">Delete</button>
+                `;
+                todoList.appendChild(listItem);
+            });
+        }
+
+        function addTask() {
+            const taskText = addTodoInput.value.trim();
+
+            if (taskText !== '') {
+                const newTask = { text: taskText, completed: false };
+                existingTasks.push(newTask);
+                localStorage.setItem('tasks', JSON.stringify(existingTasks));
+                addTodoInput.value = '';
+                renderTasks();
+            }
+        }
+
+        function deleteTask(index) {
+            existingTasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(existingTasks));
+            renderTasks();
+        }
+
+        function toggleTask(index) {
+            existingTasks[index].completed = !existingTasks[index].completed;
+            localStorage.setItem('tasks', JSON.stringify(existingTasks));
+            renderTasks();
+        }
+
+        // Initial render
+        renderTasks();
+
+        // Event listeners
+        document.getElementById('add-todo').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+    </script>
+
+</body>
+</html>
